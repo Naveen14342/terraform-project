@@ -166,11 +166,5 @@ resource "aws_launch_configuration" "web_server" {
   user_data = file("${path.module}/bootstrap.sh")
 }
 
-resource "aws_autoscaling_group" "asg" {
-  desired_capacity     = 2
-  max_size             = 4
-  min_size             = 1
-  vpc_zone_identifier  = [aws_subnet.private.id]
-  launch_configuration = aws_launch_configuration.web_server.name
-}
+
 
