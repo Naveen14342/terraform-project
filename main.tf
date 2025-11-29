@@ -154,49 +154,5 @@ resource "aws_instance" "webserver" {
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
   user_data = file("${path.module}/bootstrap.sh")
 
-}
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-~
-main.yml[+] [unix] (05:29 01/01/1970)                                                                                                                                                                     13,1 All
--- INSERT --
+}                                                                                                       
 
