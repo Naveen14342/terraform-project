@@ -16,7 +16,7 @@ resource "aws_vpc" "main" {
 
 resource "aws_subnet" "public_a" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.3.0/24"
+  cidr_block        = "10.0.6.0/24"
   availability_zone = "ap-south-1a"
   map_public_ip_on_launch = true
 
@@ -26,7 +26,7 @@ tags = {
 }
 resource "aws_subnet" "public_b" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.4.0/24"
+  cidr_block              = "10.0.7.0/24"
   availability_zone       = "ap-south-1b"
   map_public_ip_on_launch = true
 
@@ -38,7 +38,7 @@ resource "aws_subnet" "public_b" {
 
 resource "aws_subnet" "private" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.5.0/24"
+  cidr_block        = "10.0.8.0/24"
   availability_zone = "ap-south-1b"
 }
 data "aws_ami" "ubuntu_latest" {
@@ -183,7 +183,7 @@ resource "aws_launch_template" "web_server" {
   iam_instance_profile {
     name = aws_iam_instance_profile.ec2_profile.name
   }
-  user_data = file("${path.module}/bootstrap.sh")
+  user_data = base64encode(file("${path.module}/bootstrap.sh"))
 }
 
 
