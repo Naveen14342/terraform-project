@@ -65,7 +65,7 @@ data "aws_ami" "ubuntu_latest" {
 resource "aws_lb" "app_lb" {
   name = "load-balncer"
   load_balancer_type = "application"
-  subnets = [aws_subnet.public.id, aws_subnet.public_b.id]
+  subnets = [aws_subnet.public_a.id, aws_subnet.public_b.id]
   internal = false
 }
 
@@ -178,7 +178,7 @@ resource "aws_launch_template" "web_server" {
   name_prefix   = "web-"
   image_id      = data.aws_ami.ubuntu_latest.id
   instance_type = "t3.micro"
-  vpc_security_group_ids = [aws_security_group.web_instance.id]
+  vpc_security_group_ids = [aws_security_group.web-instance.id]
   iam_instance_profile {
     name = aws_iam_instance_profile.ec2_profile.name
   }
