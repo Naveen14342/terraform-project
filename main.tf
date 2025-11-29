@@ -50,16 +50,16 @@ data "aws_ami" "ubuntu_latest" {
 resource "aws_lb" "app_lb" {
   name = var.lb_name
   load_balancer_type = "application"
-  subnet_id = aws_subnet.public.ip
+  subnet_id = [aws_subnet.public.ip]
   internal = false
 }
 
-resource "auto_scaling_group" "asg" {
+resource "aws_autoscaling_group" "asg" {
    desired_capacity     = 2
    max_size             = 4
    min_size             = 1
   vpc_zone_identifier  = [aws_subnet.private.id]
-  launch_configuration = aws_launch_configuration.web_server.id
+  
 
 }
 
@@ -150,7 +150,7 @@ resource "aws_instance" "webserver" {
   ami           = aws_ami.ubuntu_latest.id
   instance_type = "t3.micro"
   subnet_id     = aws_subnet.private.id
-  security_groups = [aws_security_group.ec2_sg.id]
+  security_groups = [aws_security_group.web-instance.id]
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
   user_data = file("${path.module}/bootstrap.sh")
 
