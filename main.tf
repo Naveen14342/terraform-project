@@ -48,7 +48,7 @@ data "aws_ami" "ubuntu_latest" {
 
 
 resource "aws_lb" "app_lb" {
-  name = "load_balncer"
+  name = "load-balncer"
   load_balancer_type = "application"
   subnets = [aws_subnet.public.id]
   internal = false
