@@ -14,16 +14,31 @@ resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
 }
 
-resource "aws_subnet" "public" {
+resource "aws_subnet" "public_a" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.1.0/24"
   availability_zone = "ap-south-1a"
   map_public_ip_on_launch = true
+
+tags = {
+ name = "public-subnet-a"
 }
+}
+resource "aws_subnet" "public_b" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "ap-south-1b"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "public-subnet-b"
+  }
+}
+
 
 resource "aws_subnet" "private" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
+  cidr_block        = "10.0.3.0/24"
   availability_zone = "ap-south-1b"
 }
 data "aws_ami" "ubuntu_latest" {
@@ -50,7 +65,7 @@ data "aws_ami" "ubuntu_latest" {
 resource "aws_lb" "app_lb" {
   name = "load-balncer"
   load_balancer_type = "application"
-  subnets = [aws_subnet.public.id]
+  subnets = [aws_subnet.public.id, aws_subnet.public_b.id]
   internal = false
 }
 
@@ -59,9 +74,10 @@ resource "aws_autoscaling_group" "asg" {
    max_size             = 4
    min_size             = 1
   vpc_zone_identifier  = [aws_subnet.private.id]
-  launch_configuration = aws_launch_configuration.web_server.id
-
-  
+  launch_template {
+    id      = aws_launch_template.web_server.id
+    version = "$Latest"
+  }
 
 }
 
@@ -90,6 +106,7 @@ resource "aws_security_group" "web-instance"{
 
   name = "web-sg"
   description = "aonly access from alb-sg"
+  vpc_id      = aws_vpc.main.id  
 
   ingress {
     description = "accesss for web"
@@ -157,14 +174,17 @@ resource "aws_instance" "webserver" {
   user_data = file("${path.module}/bootstrap.sh")
 
 }  
-resource "aws_launch_configuration" "web_server" {
+resource "aws_launch_template" "web_server" {
   name_prefix   = "web-"
   image_id      = data.aws_ami.ubuntu_latest.id
   instance_type = "t3.micro"
-  security_groups = [aws_security_group.web-instance.id]
-  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+  vpc_security_group_ids = [aws_security_group.web_instance.id]
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ec2_profile.name
+  }
   user_data = file("${path.module}/bootstrap.sh")
 }
+
 
 
 
