@@ -48,7 +48,7 @@ data "aws_ami" "ubuntu_latest" {
 
 
 resource "aws_lb" "app_lb" {
-  name = var.lb_name
+  name = load_balncer
   load_balancer_type = "application"
   subnet_id = [aws_subnet.public.ip]
   internal = false
@@ -59,6 +59,8 @@ resource "aws_autoscaling_group" "asg" {
    max_size             = 4
    min_size             = 1
   vpc_zone_identifier  = [aws_subnet.private.id]
+  launch_configuration = aws_launch_configuration.web_server.id
+
   
 
 }
@@ -72,14 +74,14 @@ resource "aws_security_group" "alb-sg" {
     from_port = 80
     to_port = 80
     protocol = "tcp"
-    cidr = ["0.0.0.0/0"]
+   
   }
 
   egress{
     from_port = 0
     to_port = 0
     protocol = "-1"
-    cidr = ["0.0.0.0/0"]
+    
   }
 
 }
@@ -94,7 +96,7 @@ resource "aws_security_group" "web-instance"{
     from_port = 80
     to_port = 80
     protocol = "tcp"
-    security_groups          = [aws_security_group.alb_sg.id]
+    security_groups          = [aws_security_group.alb-sg.id]
   }
 
   egress {
