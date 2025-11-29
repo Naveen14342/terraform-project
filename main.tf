@@ -48,7 +48,7 @@ data "aws_ami" "ubuntu_latest" {
 
 
 resource "aws_lb" "app_lb" {
-  name = load_balncer
+  name = "load_balncer"
   load_balancer_type = "application"
   subnet_id = [aws_subnet.public.ip]
   internal = false
@@ -103,7 +103,7 @@ resource "aws_security_group" "web-instance"{
     from_port = 0
     to_port = 0
     protocol = "-1"
-    cidr = ["0.0.0.0/0"]
+    
   }
 }
 
@@ -156,5 +156,21 @@ resource "aws_instance" "webserver" {
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
   user_data = file("${path.module}/bootstrap.sh")
 
-}                                                                                                       
+}  
+resource "aws_launch_configuration" "web_server" {
+  name_prefix   = "web-"
+  image_id      = aws_ami.ubuntu_latest.id
+  instance_type = "t3.micro"
+  security_groups = [aws_security_group.web_instance.id]
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+  user_data = file("${path.module}/bootstrap.sh")
+}
+
+resource "aws_autoscaling_group" "asg" {
+  desired_capacity     = 2
+  max_size             = 4
+  min_size             = 1
+  vpc_zone_identifier  = [aws_subnet.private.id]
+  launch_configuration = aws_launch_configuration.web_server.name
+}
 
