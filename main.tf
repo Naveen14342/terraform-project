@@ -67,6 +67,33 @@ resource "aws_route_table_association" "public_b" {
   route_table_id = aws_route_table.public_rt.id
 }
 
+# Elastic IP for NAT Gateway
+resource "aws_eip" "nat_eip" {
+  vpc = true
+}
+
+# NAT Gateway in public subnet
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = aws_subnet.public_a.id
+}
+
+# Private route table
+resource "aws_route_table" "private_rt" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat.id
+  }
+}
+
+# Associate private subnet with private route table
+resource "aws_route_table_association" "private_assoc" {
+  subnet_id      = aws_subnet.private.id
+  route_table_id = aws_route_table.private_rt.id
+}
+
 data "aws_ami" "ubuntu_latest" {
   most_recent = true
   owners      = ["099720109477"] # Canonical official AWS account
@@ -218,6 +245,11 @@ resource "aws_iam_role_policy" "ec2_policy" {
       }
     ]
   })
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_attach" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_iam_instance_profile" "ec2_profile" {
