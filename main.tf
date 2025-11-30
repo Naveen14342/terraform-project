@@ -279,10 +279,12 @@ resource "aws_launch_template" "web_server" {
   user_data = base64encode(file("${path.module}/bootstrap.sh"))
 }
 
+# Fetch your current public IP
 data "http" "myip" {
-  url = "https://ifconfig.me"
+  url = "https://checkip.amazonaws.com/"
 }
 
+# Bastion SG allowing SSH only from your IP
 resource "aws_security_group" "bastion_sg" {
   name        = "bastion-sg"
   description = "Allow SSH from my IP"
@@ -293,7 +295,7 @@ resource "aws_security_group" "bastion_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${chomp(data.http.myip.body)}/32"]
+    cidr_blocks = ["${chomp(data.http.myip.response_body)}/32"]
   }
 
   egress {
