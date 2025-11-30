@@ -178,6 +178,7 @@ resource "aws_security_group" "alb-sg" {
     from_port = 80
     to_port = 80
     protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
    
   }
 
@@ -263,7 +264,7 @@ resource "aws_instance" "webserver" {
   instance_type = "t3.micro"
   key_name               = "Redhat_keypair"
   subnet_id     = aws_subnet.private.id
-  security_groups = [aws_security_group.web-instance.id]
+  vpc_security_group_ids = [aws_security_group.web-instance.id]
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
   user_data = file("${path.module}/bootstrap.sh")
 
@@ -313,7 +314,7 @@ resource "aws_instance" "bastion" {
   instance_type = "t3.micro"
   key_name      = "Redhat_keypair"
   subnet_id     = aws_subnet.public_a.id
-  security_groups = [aws_security_group.bastion_sg.id]
+  vpc_security_group_ids = [aws_security_group.bastion_sg.id]
 
   associate_public_ip_address = true
 
