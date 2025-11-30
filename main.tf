@@ -195,6 +195,7 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 resource "aws_instance" "webserver" {
   ami           = data.aws_ami.ubuntu_latest.id
   instance_type = "t3.micro"
+  key_name               = "Redhat_keypair"
   subnet_id     = aws_subnet.private.id
   security_groups = [aws_security_group.web-instance.id]
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
