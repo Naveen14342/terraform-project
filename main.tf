@@ -279,18 +279,21 @@ resource "aws_launch_template" "web_server" {
   user_data = base64encode(file("${path.module}/bootstrap.sh"))
 }
 
-# Security group for bastion host
+data "http" "myip" {
+  url = "https://ifconfig.me"
+}
+
 resource "aws_security_group" "bastion_sg" {
   name        = "bastion-sg"
   description = "Allow SSH from my IP"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "SSH access from my IP"
+    description = "SSH access from my laptop"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["203.0.113.25/32/32"] # Replace with your laptop's IP
+    cidr_blocks = ["${chomp(data.http.myip.body)}/32"]
   }
 
   egress {
@@ -300,6 +303,7 @@ resource "aws_security_group" "bastion_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 
 # Bastion host instance in public subnet
 resource "aws_instance" "bastion" {
