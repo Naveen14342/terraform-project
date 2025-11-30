@@ -2,6 +2,12 @@
 # Update packages
 apt-get update -y
 
+snap install amazon-ssm-agent --classic
+# Enable and start service
+systemctl enable snap.amazon-ssm-agent.amazon-ssm-agent.service
+systemctl start snap.amazon-ssm-agent.amazon-ssm-agent.service
+
+
 # Install Apache
 apt-get install -y apache2 unzip wget
 
