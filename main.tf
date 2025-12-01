@@ -121,6 +121,7 @@ resource "aws_lb" "app_lb" {
   load_balancer_type = "application"
   subnets = [aws_subnet.public_a.id, aws_subnet.public_b.id]
   internal = false
+  security_groups   = [aws_security_group.alb_sg.id]
 }
 
 resource "aws_lb_target_group" "app_tg" {
@@ -168,6 +169,14 @@ resource "aws_autoscaling_group" "asg" {
 
 }
 
+resource "aws_lb_target_group_attachment" "tg_attach" {
+  count            = length(aws_instance.webserver)
+  target_group_arn = aws_lb_target_group.app_tg.arn
+  target_id        = aws_instance.webserver.id  
+  port             = 80
+}
+
+
 resource "aws_security_group" "alb-sg" {
   name = "alb-security"
   description = "sg for my app-lb"
@@ -185,7 +194,8 @@ resource "aws_security_group" "alb-sg" {
   egress{
     from_port = 0
     to_port = 0
-    protocol = "-1"
+    protocol = "tcp"
+    security_groups = [aws_security_group.web_instance.id] 
     
   }
 
@@ -296,7 +306,7 @@ resource "aws_security_group" "bastion_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${chomp(data.http.myip.response_body)}/32"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
