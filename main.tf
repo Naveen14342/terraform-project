@@ -121,7 +121,7 @@ resource "aws_lb" "app_lb" {
   load_balancer_type = "application"
   subnets = [aws_subnet.public_a.id, aws_subnet.public_b.id]
   internal = false
-  security_groups   = [aws_security_group.alb_sg.id]
+  security_groups   = [aws_security_group.alb-sg.id]
 }
 
 resource "aws_lb_target_group" "app_tg" {
@@ -195,7 +195,7 @@ resource "aws_security_group" "alb-sg" {
     from_port = 0
     to_port = 0
     protocol = "tcp"
-    security_groups = [aws_security_group.web_instance.id] 
+    security_groups = [aws_security_group.web-instance.id] 
     
   }
 
