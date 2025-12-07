@@ -219,6 +219,7 @@ resource "aws_security_group" "web-instance"{
     from_port = 0
     to_port = 0
     protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
     
   }
 }
@@ -269,16 +270,7 @@ resource "aws_iam_instance_profile" "ec2_profile" {
   role = aws_iam_role.ec2_role.name
 }
 
-resource "aws_instance" "webserver" {
-  ami           = data.aws_ami.ubuntu_latest.id
-  instance_type = "t3.micro"
-  key_name               = "Redhat_keypair"
-  subnet_id     = aws_subnet.private.id
-  vpc_security_group_ids = [aws_security_group.web-instance.id]
-  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
-  user_data = file("${path.module}/bootstrap.sh")
-
-}  
+  
 resource "aws_launch_template" "web_server" {
   name_prefix   = "web-"
   image_id      = data.aws_ami.ubuntu_latest.id
